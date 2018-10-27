@@ -2,11 +2,30 @@ require('dotenv').config();
 import ApolloClient, {gql} from 'apollo-boost';
 import 'cross-fetch/polyfill';
 
-const GET_ORGANIZATION = gql`
-  query($organization: String!){
+const GET_REPOSITORIES_OF_ORGANIZATION = gql`
+  query($organization: String!) {
     organization(login: $organization) {
       name
       url
+      repositories(first: 5) {
+        edges {
+          node {
+            name
+            url
+          }
+        }
+      }
+    }
+  }
+`;
+
+const ADD_STAR = gql`
+  mutation AddStar($repositoryId: ID!) {
+    addStar(input: { starrableId: $repositoryId }) {
+      starrable {
+        id
+        viewerHasStarred
+      }
     }
   }
 `;
@@ -33,7 +52,7 @@ const user = {
 
 client
   .query({
-    query: GET_ORGANIZATION,
+    query: GET_REPOSITORIES_OF_ORGANIZATION,
     variables: {
       organization: 'the-road-to-learn-react',
     },
